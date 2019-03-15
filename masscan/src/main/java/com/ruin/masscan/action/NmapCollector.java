@@ -79,6 +79,9 @@ public class NmapCollector implements Runnable{
 		
 		
 		Set<String> ipportset = new HashSet<>(Arrays.asList(ip_ports));
+		for(String iString: ipportset) {
+			System.out.println(iString);
+		}
 	}
 
 	
