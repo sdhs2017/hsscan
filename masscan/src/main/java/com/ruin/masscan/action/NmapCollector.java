@@ -1,10 +1,14 @@
 package com.ruin.masscan.action;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import com.ruin.masscan.ExecuteCmd;
@@ -13,7 +17,7 @@ public class NmapCollector implements Runnable{
 	
 	private Semaphore semaphore;
 
-	private String IPS;
+	private String IP;
 
 	private String ports;
 
@@ -27,11 +31,11 @@ public class NmapCollector implements Runnable{
 	}
 
 	public String getIPS() {
-		return IPS;
+		return IP;
 	}
 
 	public void setIPS(String iPS) {
-		IPS = iPS;
+		IP = iPS;
 	}
 
 	public String getPorts() {
@@ -42,14 +46,19 @@ public class NmapCollector implements Runnable{
 		this.ports = ports;
 	}
 	
+	public NmapCollector(Semaphore semaphore, String IP, String ports) {
+		this.semaphore = semaphore;
+		this.IP = IP;
+		this.ports = ports;
+	}
+	
 	@Override
 	public void run() {
 		
 		try {
 			// 获取 信号量 执行许可
 			semaphore.acquire();
-			System.out.println("/opt/jzlog/masscan/bin/masscan "+IPS+" -p"+ports);
-			Map<String, Set<String>> result = ExecuteCmd.execCmd("/opt/jzlog/masscan/bin/masscan "+IPS+" -p"+ports+" --rate 200", "");
+			Map<String, String> result = ExecuteCmd.execCmd("nmap -sV -sT -A -p "+ports+" "+IP);
 			System.out.println(result);
 			// 释放 信号量 许可
 			semaphore.release();
@@ -78,9 +87,25 @@ public class NmapCollector implements Runnable{
 		String [] ip_ports = ipports.split(",");
 		
 		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		ExecutorService threadPool = Executors.newCachedThreadPool();
+		
+		final Semaphore semaphore = new Semaphore(5);
 		Set<String> ipportset = new HashSet<>(Arrays.asList(ip_ports));
 		for(String iString: ipportset) {
-			System.out.println(iString);
+			String [] ip_prot = iString.split("_");
+			threadPool.execute(new NmapCollector(semaphore,ip_prot[0],ip_prot[1]));
+		}
+		Date nmapstarttime = new Date();
+		while (true) {
+			if (threadPool.isTerminated()) {
+				Date nmapendtime = new Date();
+ 				long timetmp = nmapendtime.getTime()-nmapstarttime.getTime();
+ 				System.out.println("nmap获取指纹信息时间"+format.format(nmapstarttime)+"   "+format.format(nmapendtime)+"   总共用时："+timetmp+"ms");
+				break;
+			}
+			
 		}
 	}
 

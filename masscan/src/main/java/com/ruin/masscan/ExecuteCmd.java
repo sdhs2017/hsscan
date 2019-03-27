@@ -46,7 +46,7 @@ public class ExecuteCmd {
 			String line = null;
 			while ((line = bufrIn.readLine()) != null) {
 				stringBuffer.append(line.trim()).append(LINE_SEPARATOR);
-				System.out.println(line);
+				//System.out.println(line);
 				/*if (getSubUtil(line.trim(),"open")!=null||getSubUtil(line.trim(),"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")!=null) {
 					
 				}*/

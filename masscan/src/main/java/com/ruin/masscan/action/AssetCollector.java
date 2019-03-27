@@ -193,14 +193,35 @@ public class AssetCollector implements Callable<Set<String>>{
 			}
 			
 		}
+		
 		threadPool.shutdownNow();
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ExecutorService NmapthreadPool = Executors.newCachedThreadPool();
+		final Semaphore semaphoreNmap = new Semaphore(5);
 		Date nmapstarttime = new Date();
 		for(String ipport : ipports) {
 			String [] ip_prot = ipport.split("_");
-			ExecuteCmd.execCmd("nmap -sV -sT -A -p "+ip_prot[1]+" "+ip_prot[0]);
+			NmapthreadPool.execute(new NmapCollector(semaphoreNmap,ip_prot[0],ip_prot[1]));
 		}
-		Date nmapendtime = new Date();
-		System.out.println("nmap获取指纹信息时间"+format.format(nmapstarttime)+"   "+format.format(nmapendtime));
+		NmapthreadPool.shutdown();
+		while (true) {
+			
+ 			if(NmapthreadPool.isTerminated()){
+ 				Date nmapendtime = new Date();
+ 				long timetmp = nmapendtime.getTime()-nmapstarttime.getTime();
+ 				System.out.println("nmap获取指纹信息时间"+format.format(nmapstarttime)+"   "+format.format(nmapendtime)+"   总共用时："+timetmp+"ms");
+				break;
+			}
+			
+		}
+		NmapthreadPool.shutdownNow();
 	}
 
 }
