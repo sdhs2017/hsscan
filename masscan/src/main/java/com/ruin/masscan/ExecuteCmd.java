@@ -48,7 +48,7 @@ public class ExecuteCmd {
 				stringBuffer.append(line.trim()).append(LINE_SEPARATOR);
 				//System.out.println(line);
 				/*if (getSubUtil(line.trim(),"open")!=null||getSubUtil(line.trim(),"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")!=null) {
-					
+					 
 				}*/
 				
 			}
@@ -294,6 +294,8 @@ public class ExecuteCmd {
 		Process process = null;
 		File file = null;
 		
+		
+		
 		if(filepath!=null&&!filepath.equals("")) {
 			file = new File(filepath);
 		}
@@ -311,6 +313,7 @@ public class ExecuteCmd {
 				String ports = getSubUtilSimple(line.trim(), "port\\s+(.*?)[/]");
 				String ip = getSubUtil(cmd,"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
 				resultSet.add(ip+"_"+ports);
+				
 			}
 			//每个命令存储自己返回数据-用于后续对返回数据进行处理
 			//result.put("masscan"+getSubUtil(cmd,"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"), stringBuffer.toString());

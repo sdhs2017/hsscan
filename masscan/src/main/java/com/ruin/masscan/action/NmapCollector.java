@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +21,8 @@ public class NmapCollector implements Runnable{
 	private String IP;
 
 	private String ports;
+	
+	List<Object[]> list =new ArrayList<Object[]>();
 
 	
 	public Semaphore getSemaphore() {
@@ -59,9 +62,10 @@ public class NmapCollector implements Runnable{
 			// 获取 信号量 执行许可
 			semaphore.acquire();
 			Map<String, String> result = ExecuteCmd.execCmd("nmap -sV -sT -A -p "+ports+" "+IP);
-			System.out.println(result);
+			System.out.println(result.get("nmap -sV -sT -A -p "+ports+" "+IP));
 			// 释放 信号量 许可
 			semaphore.release();
+//			CreateFileUtil.createTxtFile(list,"/opt/nmpMessage", "Test");
 			
 		} catch (InterruptedException e) {
 			e.printStackTrace();
